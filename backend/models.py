@@ -1,18 +1,9 @@
-from sqlalchemy import Column, String, DateTime, Text, Boolean, ForeignKey, Table
+from sqlalchemy import Column, String, DateTime, Text, Boolean, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from backend.config import Base
+from config import Base
 import uuid
-
-
-# Association table for user roles (many-to-many)
-user_roles = Table(
-    'user_roles',
-    Base.metadata,
-    Column('user_id', UUID(as_uuid=True), ForeignKey('profiles.id'), primary_key=True),
-    Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'), primary_key=True)
-)
 
 
 class Profile(Base):
@@ -29,10 +20,32 @@ class Profile(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-   
+    # Relationship to trackers
+    trackers = relationship("Tracker", back_populates="user")
     
     def __repr__(self):
         return f"<Profile(id={self.id}, email={self.email})>"
+
+
+class Tracker(Base):
+    __tablename__ = "trackers"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('profiles.id'), nullable=False)
+    name = Column(String, nullable=False)
+    tracker_type = Column(String, nullable=False, default='gndu_result')  # Old field - still exists
+    application_id = Column(String, nullable=False)  # Old field - still exists
+    target_url = Column(String, nullable=False)  # New field from migration
+    search_term = Column(String, nullable=False)  # New field from migration
+    last_status = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationship to user
+    user = relationship("Profile", back_populates="trackers")
+    
+    def __repr__(self):
+        return f"<Tracker(id={self.id}, name={self.name}, type={self.tracker_type}, application_id={self.application_id}, url={self.target_url}, search={self.search_term})>"
 
 
 
