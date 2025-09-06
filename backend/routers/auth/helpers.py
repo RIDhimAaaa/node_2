@@ -5,7 +5,7 @@ Contains business logic for token management and user authentication
 import logging
 from typing import Dict, Any, Optional
 from fastapi import HTTPException, status
-from config import supabase
+from backend.config import supabase
 from routers.auth.schemas import AuthResponse
 
 logger = logging.getLogger(__name__)
