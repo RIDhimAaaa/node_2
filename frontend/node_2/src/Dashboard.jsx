@@ -8,10 +8,8 @@ function Dashboard({ session }) {
   const [showAddForm, setShowAddForm] = useState(false)
   const [newTracker, setNewTracker] = useState({
     name: '',
-    tracker_type: 'universal',  // Default type for new universal system
-    application_id: '',  // Legacy field for backward compatibility
     target_url: '',
-    search_term: ''  // New field name matching backend schema
+    search_term: ''
   })
 
   const handleSignOut = async () => {
@@ -20,7 +18,6 @@ function Dashboard({ session }) {
 
   const fetchTrackers = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
 
       const response = await fetch('http://localhost:8000/trackers', {
@@ -33,6 +30,10 @@ function Dashboard({ session }) {
       if (response.ok) {
         const data = await response.json()
         setTrackers(data)
+      } else {
+        console.error('Error response:', response.status, response.statusText)
+        const errorText = await response.text()
+        console.error('Error details:', errorText)
       }
     } catch (error) {
       console.error('Error fetching trackers:', error)
@@ -44,7 +45,6 @@ function Dashboard({ session }) {
   const addTracker = async (e) => {
     e.preventDefault()
     try {
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
 
       const response = await fetch('http://localhost:8000/trackers', {
@@ -55,8 +55,6 @@ function Dashboard({ session }) {
         },
         body: JSON.stringify({
           name: newTracker.name,
-          tracker_type: newTracker.tracker_type,
-          application_id: newTracker.search_term,  // Use search_term for application_id (legacy)
           target_url: newTracker.target_url,
           search_term: newTracker.search_term
         })
@@ -65,8 +63,6 @@ function Dashboard({ session }) {
       if (response.ok) {
         setNewTracker({ 
           name: '', 
-          tracker_type: 'universal', 
-          application_id: '', 
           target_url: '', 
           search_term: '' 
         })
@@ -84,7 +80,6 @@ function Dashboard({ session }) {
 
   const refreshTracker = async (trackerId) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
 
       const response = await fetch(`http://localhost:8000/trackers/${trackerId}/refresh`, {

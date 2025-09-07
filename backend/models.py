@@ -33,10 +33,9 @@ class Tracker(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey('profiles.id'), nullable=False)
     name = Column(String, nullable=False)
-    tracker_type = Column(String, nullable=False, default='gndu_result')  # Old field - still exists
-    application_id = Column(String, nullable=False)  # Old field - still exists
-    target_url = Column(String, nullable=False)  # New field from migration
-    search_term = Column(String, nullable=False)  # New field from migration
+    application_id = Column(String, nullable=False)  # Original field
+    target_url = Column(String, nullable=False)  # Added by migration
+    search_term = Column(String, nullable=False)  # Added by migration
     last_status = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -45,7 +44,7 @@ class Tracker(Base):
     user = relationship("Profile", back_populates="trackers")
     
     def __repr__(self):
-        return f"<Tracker(id={self.id}, name={self.name}, type={self.tracker_type}, application_id={self.application_id}, url={self.target_url}, search={self.search_term})>"
+        return f"<Tracker(id={self.id}, name={self.name}, url={self.target_url}, search={self.search_term})>"
 
 
 

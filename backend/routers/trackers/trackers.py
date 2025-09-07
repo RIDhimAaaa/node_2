@@ -35,14 +35,13 @@ async def add_tracker(
         raise HTTPException(status_code=400, detail=f"Could not add tracker. Reason: {initial_status}")
 
     try:
-        # Create new tracker with both old and new fields
+        # Create new tracker
         new_tracker = Tracker(
             user_id=current_user["user_id"],
             name=tracker_data.name,
-            tracker_type=tracker_data.tracker_type,  # Legacy field
-            application_id=tracker_data.application_id,  # Legacy field
-            target_url=tracker_data.target_url,  # New field
-            search_term=tracker_data.search_term,  # New field
+            application_id=tracker_data.search_term,  # Use search_term as application_id
+            target_url=tracker_data.target_url,
+            search_term=tracker_data.search_term,
             last_status=initial_status
         )
         
@@ -65,13 +64,25 @@ async def get_trackers(
     """Get all trackers for the current user."""
     
     try:
+        print(f"🔍 GET /trackers - User ID: {current_user['user_id']}")
+        print(f"🔍 User data: {current_user}")
+        
         result = await db.execute(
             select(Tracker).where(Tracker.user_id == current_user["user_id"])
         )
         trackers = result.scalars().all()
+        
+        print(f"🔍 Found {len(trackers)} trackers")
+        for tracker in trackers:
+            print(f"   - Tracker: {tracker.name}, URL: {tracker.target_url}")
+        
         return trackers
         
     except Exception as e:
+        print(f"❌ Error in get_trackers: {e}")
+        print(f"❌ Error type: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 

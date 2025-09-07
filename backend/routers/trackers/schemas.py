@@ -5,17 +5,14 @@ from datetime import datetime
 
 class TrackerCreate(BaseModel):
     name: str 
-    tracker_type: str = 'gndu_result'  # Platform field: defaults to gndu_result (legacy)
-    application_id: str  # Legacy field
-    target_url: str  # New field for URL-based tracking
-    search_term: str  # New field for what to search for
+    target_url: str  # URL to track
+    search_term: str  # What to search for on the URL
 
 
 class TrackerResponse(BaseModel):
     id: int
     name: str
-    tracker_type: str  # Platform field (legacy)
-    application_id: str  # Legacy field
+    application_id: str  # Original field
     target_url: str  # New URL field
     search_term: str  # New search term field
     last_status: Optional[str] = None
